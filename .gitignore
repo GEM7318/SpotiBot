@@ -1,0 +1,46 @@
+
+# TODO: (cleanup) .gitignore from legacy directory structure/
+
+*.html
+SpotiBot.ini
+*.jpg
+*.pkl
+*.csv
+*.txt
+*.xlsx
+*.xml
+*.ipynb
+.ipynb_checkpoints/
+credentials.json
+Playlists ToDo.py
+_patches/
+_bat/
+_archive
+_data
+*.idea/
+__pycache__/
+_sqlite/*.h2.db
+_sqlite/*.db
+*.db*
+*.Db.*
+_archive/
+sandbox/.*
+**/.db
+_local/*
+_png
+readme_hist.md
+*.cache-*
+mongo_creds.cfg
+sandbox/*
+**/.pytest_cache/*
+debug.log
+_pkl/*
+_archive/*
+_pytest_Fixture_src/*
+_runners/*
+
+# cleanup files
+Activity_GEM7318.py
+SpotiBot.json
+SpotiBot_1269423696.ini
+
