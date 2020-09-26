@@ -1,12 +1,9 @@
-
 import json
 import requests
 
-from spotibot.mongo.utils.Handlers import \
-    get_serializable
+from spotibot.mongo.utils.Handlers import get_serializable
 
-from spotibot.base.config import \
-    Configuration
+from spotibot.base.config import Configuration
 
 config = Configuration.Config()
 
@@ -16,7 +13,6 @@ config = Configuration.Config()
 
 
 class Playlist:
-
     def __init__(self, href: str, headers: dict):
 
         self.href = href
@@ -30,18 +26,18 @@ class Playlist:
 
 
 class Href:
-
     def __init__(self, username: str):
         self.username = username
 
-        self.current_playback = \
-            r'https://api.spotify.com/v1/me/player?' \
-            r'additional_types=track,episode'
+        self.current_playback = (
+            r"https://api.spotify.com/v1/me/player?" r"additional_types=track,episode"
+        )
 
     @property
     def playlists(self):
-        return f'https://api.spotify.com/v1/users/' \
-               f'{self.username}/playlists?limit=50'
+        return (
+            f"https://api.spotify.com/v1/users/" f"{self.username}/playlists?limit=50"
+        )
 
     @property
     def tracks_all_time(self):
@@ -49,8 +45,7 @@ class Href:
 
     def new_playlist(self, playlist_name: str, playlist_desc: str = None):
         href = f"https://api.spotify.com/v1/users/{self.username}/playlists"
-        payload = json.dumps({'name': playlist_name,
-                              'description': playlist_desc})
+        payload = json.dumps({"name": playlist_name, "description": playlist_desc})
 
         return href, payload
 

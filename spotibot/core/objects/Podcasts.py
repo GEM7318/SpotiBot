@@ -1,4 +1,3 @@
-
 import json
 import requests
 
@@ -49,50 +48,39 @@ class Show:
 
     def __init__(self, show):
         if show:
-            self.available_markets: str = \
-                object_handler(show, 'available_markets')
+            self.available_markets: str = object_handler(show, "available_markets")
 
-            self.copyrights: str = \
-                object_handler(show, 'copyrights')
+            self.copyrights: str = object_handler(show, "copyrights")
 
-            self.description: str = \
-                object_handler(show, 'description')
+            self.description: str = object_handler(show, "description")
 
-            self.explicit: str = \
-                object_handler(show, 'explicit')
+            self.explicit: str = object_handler(show, "explicit")
 
-            self.external_urls: ExternalUrl = \
-                ExternalUrl(object_handler(show, 'external_urls'))
+            self.external_urls: ExternalUrl = ExternalUrl(
+                object_handler(show, "external_urls")
+            )
 
-            self.href: str = \
-                object_handler(show, 'href')
+            self.href: str = object_handler(show, "href")
 
-            self.id: str = \
-                object_handler(show, 'id')
+            self.id: str = object_handler(show, "id")
 
-            self.images: list = \
-                [Image(image) for image in show.get('images', [None])]
+            self.images: list = [Image(image) for image in show.get("images", [None])]
 
-            self.is_externally_hosted: str = \
-                object_handler(show, 'is_externally_hosted')
+            self.is_externally_hosted: str = object_handler(
+                show, "is_externally_hosted"
+            )
 
-            self.languages: str = \
-                object_handler(show, 'languages')
+            self.languages: str = object_handler(show, "languages")
 
-            self.media_type: str = \
-                object_handler(show, 'media_type')
+            self.media_type: str = object_handler(show, "media_type")
 
-            self.name: str = \
-                object_handler(show, 'name')
+            self.name: str = object_handler(show, "name")
 
-            self.publisher: str = \
-                object_handler(show, 'publisher')
+            self.publisher: str = object_handler(show, "publisher")
 
-            self.type: str = \
-                object_handler(show, 'type')
+            self.type: str = object_handler(show, "type")
 
-            self.uri: str = \
-                object_handler(show, 'uri')
+            self.uri: str = object_handler(show, "uri")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
@@ -201,59 +189,49 @@ class Episode:
     """
 
     def __init__(self, episode):
-        self.audio_preview_url: str = \
-            object_handler(episode, 'audio_preview_url')
+        self.audio_preview_url: str = object_handler(episode, "audio_preview_url")
 
-        self.description: str = \
-            object_handler(episode, 'description')
+        self.description: str = object_handler(episode, "description")
 
-        self.duration: Time.Timestamp = \
-            Time.Timestamp(episode.get('duration_ms'), base='milliseconds')
+        self.duration: Time.Timestamp = Time.Timestamp(
+            episode.get("duration_ms"), base="milliseconds"
+        )
 
-        self.explicit: bool = \
-            object_handler(episode, 'explicit')
+        self.explicit: bool = object_handler(episode, "explicit")
 
-        self.external_urls: ExternalUrl = \
-            ExternalUrl(object_handler(episode, 'external_urls'))
+        self.external_urls: ExternalUrl = ExternalUrl(
+            object_handler(episode, "external_urls")
+        )
 
-        self.href: str = \
-            object_handler(episode, 'href')
+        self.href: str = object_handler(episode, "href")
 
-        self.id: str = \
-            object_handler(episode, 'id')
+        self.id: str = object_handler(episode, "id")
 
-        self.images: list = \
-            object_handler(episode, 'images')
+        self.images: list = object_handler(episode, "images")
 
-        self.is_externally_hosted: bool = \
-            object_handler(episode, 'is_externally_hosted')
+        self.is_externally_hosted: bool = object_handler(
+            episode, "is_externally_hosted"
+        )
 
-        self.is_playable: bool = \
-            object_handler(episode, 'is_playable')
+        self.is_playable: bool = object_handler(episode, "is_playable")
 
-        self.language: str = \
-            object_handler(episode, 'language')
+        self.language: str = object_handler(episode, "language")
 
-        self.languages: list = \
-            object_handler(episode, 'languages')
+        self.languages: list = object_handler(episode, "languages")
 
-        self.name: str = \
-            object_handler(episode, 'name')
+        self.name: str = object_handler(episode, "name")
 
-        self.release_date: str = \
-            object_handler(episode, 'release_date')
+        self.release_date: str = object_handler(episode, "release_date")
 
-        self.release_date_precision: str = \
-            object_handler(episode, 'release_date_precision')
+        self.release_date_precision: str = object_handler(
+            episode, "release_date_precision"
+        )
 
-        self.show: Show = \
-            Show(episode.get('show'))
+        self.show: Show = Show(episode.get("show"))
 
-        self.type: str = \
-            object_handler(episode, 'type')
+        self.type: str = object_handler(episode, "type")
 
-        self.uri: str = \
-            object_handler(episode, 'uri')
+        self.uri: str = object_handler(episode, "uri")
 
     def get_duration(self) -> Time.Timestamp:
         return self.duration
@@ -313,6 +291,6 @@ class Episode:
 
     def add_to_playlist(self, playlist_href: str, headers: dict):
 
-        return requests.post(playlist_href,
-                             data=json.dumps({'uris': [self.uri]}),
-                             headers=headers)
+        return requests.post(
+            playlist_href, data=json.dumps({"uris": [self.uri]}), headers=headers
+        )

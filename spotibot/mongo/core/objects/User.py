@@ -1,4 +1,3 @@
-
 # import configparser
 # import os
 
@@ -18,5 +17,4 @@ class User(Document):
     username: str = StringField(required=True, primary_key=True)
     obj: str = StringField(required=True)
 
-    meta = {'allow_inheritance': True, 'collection': 'users',
-            'db': 'SpotiBot'}
+    meta = {"allow_inheritance": True, "collection": "users", "db": "SpotiBot"}

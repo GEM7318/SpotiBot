@@ -10,41 +10,37 @@ import requests
 
 from mongoengine import *
 
-project_dir = r'/home/gem7318/Github/SpotiBot'
+project_dir = r"/home/gem7318/Github/SpotiBot"
 sys.path.append(project_dir)
 os.chdir(project_dir)
 
-from spotibot.mongo.conn import \
-    Connector
+from spotibot.mongo.conn import Connector
 
-from spotibot.core.objects import \
-    Music as music, \
-    Podcasts as podcast, \
-    User as user, \
-    Context as context, \
-    Device as device, \
-    Time as spottime
+from spotibot.core.objects import (
+    Music as music,
+    Podcasts as podcast,
+    User as user,
+    Context as context,
+    Device as device,
+    Time as spottime,
+)
 
-from spotibot.core.utils import \
-    Hasher
+from spotibot.core.utils import Hasher
 
-from spotibot.mongo.utils.Handlers import \
-    get_serializable
+from spotibot.mongo.utils.Handlers import get_serializable
 
-from spotibot.mongo.core.objects import \
-    Activity as ActivityDoc
+from spotibot.mongo.core.objects import Activity as ActivityDoc
 
 
 class Request:
-
     def __init__(self, href, headers):
 
         # :: Request Detail ---------------------------------------------------
-        self.unix_request_tmstmp: spottime.Timestamp = \
-            spottime.Timestamp(time.time(), base='seconds')
+        self.unix_request_tmstmp: spottime.Timestamp = spottime.Timestamp(
+            time.time(), base="seconds"
+        )
 
-        response = \
-            requests.get(href, headers=headers)
+        response = requests.get(href, headers=headers)
 
         self.ok: bool = response.ok
 
@@ -55,9 +51,7 @@ class Request:
         else:
             self.result: dict = {}
 
-        self.endpoint_id: str = \
-            Hasher.quick_hash(
-                f"{href}{self.unix_request_tmstmp}")
+        self.endpoint_id: str = Hasher.quick_hash(f"{href}{self.unix_request_tmstmp}")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
@@ -114,26 +108,21 @@ class Request:
 
 
 class Current(Request):
-
     def __init__(self, user_id, headers, href):
         super().__init__(href, headers)
 
-        self.user_id = \
-            user_id
+        self.user_id = user_id
 
-        self.href = \
-            href
+        self.href = href
 
         # :: Track or Show Instantiation --------------------------------------
-        if self.result.get('currently_playing_type') == 'track':
+        if self.result.get("currently_playing_type") == "track":
 
-            self.playback: music.Track = \
-                music.Track(self.result.get('item'))
+            self.playback: music.Track = music.Track(self.result.get("item"))
 
-        elif self.result.get('currently_playing_type') == 'episode':
+        elif self.result.get("currently_playing_type") == "episode":
 
-            self.playback: podcast.Episode = \
-                podcast.Episode(self.result.get('item'))
+            self.playback: podcast.Episode = podcast.Episode(self.result.get("item"))
 
         else:
 
@@ -141,73 +130,57 @@ class Current(Request):
 
         if self.playback:
             # :: Context ------------------------------------------------------
-            self.context: context.Context = \
-                context.Context(self.result.get('context'))
+            self.context: context.Context = context.Context(self.result.get("context"))
 
             # :: Device -------------------------------------------------------
-            self.device: list = \
-                [device.Device(self.result.get('device'))]
+            self.device: list = [device.Device(self.result.get("device"))]
 
             # :: Freestanding Contextual Playback Information -----------------
-            self.currently_playing_type = \
-                self.result.get('currently_playing_type')
+            self.currently_playing_type = self.result.get("currently_playing_type")
 
-            self.shuffle_state = \
-                self.result.get('shuffle_state')
+            self.shuffle_state = self.result.get("shuffle_state")
 
-            self.repeat_state = \
-                self.result.get('repeat_state')
+            self.repeat_state = self.result.get("repeat_state")
 
-            self.actions = \
-                self.result.get('actions')
+            self.actions = self.result.get("actions")
 
-            self.is_playing = \
-                self.result.get('is_playing')
+            self.is_playing = self.result.get("is_playing")
 
             # :: Numeric Contextual Playback Information ----------------------
-            self.progress = \
-                spottime.Timestamp(self.result
-                                   .get('progress_ms'), base='milliseconds')
+            self.progress = spottime.Timestamp(
+                self.result.get("progress_ms"), base="milliseconds"
+            )
 
-            self.unix_request_tmstmp = \
-                self.unix_request_tmstmp
+            self.unix_request_tmstmp = self.unix_request_tmstmp
 
-            self.unix_refresh_tmstmp = \
-                spottime.Timestamp(self.result
-                                   .get('timestamp'), base='milliseconds')
+            self.unix_refresh_tmstmp = spottime.Timestamp(
+                self.result.get("timestamp"), base="milliseconds"
+            )
 
             # :: Newly Formatted Playback Information -------------------------
-            self.time_remaining = \
-                self.playback.duration \
-                    .__sub__(self.progress)
+            self.time_remaining = self.playback.duration.__sub__(self.progress)
 
-            self.unix_start_tmstmp = \
-                self.unix_request_tmstmp \
-                    .__sub__(self.progress)
+            self.unix_start_tmstmp = self.unix_request_tmstmp.__sub__(self.progress)
 
-            self.unix_expected_end_tmstmp = \
-                self.unix_request_tmstmp \
-                    .__add__(self.time_remaining)
+            self.unix_expected_end_tmstmp = self.unix_request_tmstmp.__add__(
+                self.time_remaining
+            )
 
             # :: Current Specific Attributes ----------------------------------
-            self._time_listened: spottime.Timestamp = \
-                self.progress
+            self._time_listened: spottime.Timestamp = self.progress
 
-            self.activity_id = \
-                Hasher.quick_hash(f"{self.playback.id}"
-                                  f"-{self.unix_start_tmstmp.seconds}"
-                                  f"-{self.user_id}")
+            self.activity_id = Hasher.quick_hash(
+                f"{self.playback.id}"
+                f"-{self.unix_start_tmstmp.seconds}"
+                f"-{self.user_id}"
+            )
 
-            self._id = \
-                f"{self.user_id}~{self.unix_request_tmstmp.seconds}~v1"
+            self._id = f"{self.user_id}~{self.unix_request_tmstmp.seconds}~v1"
 
-            self._request_cnt: int = \
-                1
+            self._request_cnt: int = 1
 
     def now(self, headers):
-        return Current(headers=headers,
-                       user_id=self.user_id,
-                       href=self.href)
+        return Current(headers=headers, user_id=self.user_id, href=self.href)
 
     @property
     def time_listened(self):
@@ -300,55 +273,37 @@ class Current(Request):
 
 
 class Delta:
-
     def __init__(self, latest: Current, prior: Current):
 
         # :: Comparison (numeric) ---------------------------------------------
-        self.progress: spottime.Timestamp = \
-            latest.progress \
-            - prior.progress
+        self.progress: spottime.Timestamp = latest.progress - prior.progress
 
-        self.duration: spottime.Timestamp = \
-            latest.playback.duration \
-            - prior.playback.duration
+        self.duration: spottime.Timestamp = latest.playback.duration - prior.playback.duration
 
-        self.time_remaining: spottime.Timestamp = \
-            latest.time_remaining \
-            - prior.time_remaining
+        self.time_remaining: spottime.Timestamp = latest.time_remaining - prior.time_remaining
 
-        self.unix_start_tmstmp: spottime.Timestamp = \
-            latest.unix_start_tmstmp \
-            - prior.unix_start_tmstmp
+        self.unix_start_tmstmp: spottime.Timestamp = latest.unix_start_tmstmp - prior.unix_start_tmstmp
 
-        self.unix_request_tmstmp: spottime.Timestamp = \
-            latest.unix_request_tmstmp \
-            - prior.unix_request_tmstmp
+        self.unix_request_tmstmp: spottime.Timestamp = latest.unix_request_tmstmp - prior.unix_request_tmstmp
 
-        self.unix_refresh_tmstmp: spottime.Timestamp = \
-            latest.unix_refresh_tmstmp \
-            - prior.unix_refresh_tmstmp
+        self.unix_refresh_tmstmp: spottime.Timestamp = latest.unix_refresh_tmstmp - prior.unix_refresh_tmstmp
 
-        self.prior_request_to_latest_start: spottime.Timestamp = \
-            latest.unix_start_tmstmp \
-            - prior.unix_request_tmstmp
+        self.prior_request_to_latest_start: spottime.Timestamp = latest.unix_start_tmstmp - prior.unix_request_tmstmp
 
-        self.progress_exceeds_request: bool = \
-            latest.progress \
-            > self.unix_request_tmstmp
+        self.progress_exceeds_request: bool = latest.progress > self.unix_request_tmstmp
         # __________________________________________________________________ ::
 
         # :: Comparison (boolean) ---------------------------------------------
-        self.is_same_type: bool = \
-            isinstance(latest.playback, type(prior.playback))
+        self.is_same_type: bool = isinstance(latest.playback, type(prior.playback))
 
-        self.is_same_id: bool = \
-            latest.playback.id == prior.playback.id
+        self.is_same_id: bool = latest.playback.id == prior.playback.id
 
-        self.is_same_device: bool = \
-            latest.device[0].name == prior.device[0].name
+        self.is_same_device: bool = latest.device[0].name == prior.device[0].name
 
-        if not self.is_same_id \
-                and latest.unix_start_tmstmp < prior.unix_expected_end_tmstmp:
+        if (
+            not self.is_same_id
+            and latest.unix_start_tmstmp < prior.unix_expected_end_tmstmp
+        ):
 
             self.cutoff_prior: bool = True
 
@@ -358,90 +313,100 @@ class Delta:
         # __________________________________________________________________ ::
 
         # :: 'Current ID' Decision Tree ---------------------------------------
-        self.activity5 = \
-            (self.progress_exceeds_request,
-             {True: (False, False, 'Rewound track'),
-              False: (False, True, 'Restarted Track')})
+        self.activity5 = (
+            self.progress_exceeds_request,
+            {
+                True: (False, False, "Rewound track"),
+                False: (False, True, "Restarted Track"),
+            },
+        )
 
-        self.activity4 = \
-            (self.progress.is_zero,
-             {True: (False, False, 'Playback paused'),
-              False: (True, None, self.activity5)})
+        self.activity4 = (
+            self.progress.is_zero,
+            {
+                True: (False, False, "Playback paused"),
+                False: (True, None, self.activity5),
+            },
+        )
 
-        self.activity3 = \
-            (self.progress.is_positive,
-             {True: (False, False, 'Continued playback'),
-              False: (True, None, self.activity4)})
+        self.activity3 = (
+            self.progress.is_positive,
+            {
+                True: (False, False, "Continued playback"),
+                False: (True, None, self.activity4),
+            },
+        )
 
-        self.activity2 = \
-            (self.is_same_id,
-             {True: (True, None, self.activity3),
-              False: (False, True, 'New activity instance started')})
+        self.activity2 = (
+            self.is_same_id,
+            {
+                True: (True, None, self.activity3),
+                False: (False, True, "New activity instance started"),
+            },
+        )
 
-        self.activity1 = \
-            (latest.playback,
-             {True: (True, False, self.activity2),
-              False: (False, False, 'No activity - sleep')})
+        self.activity1 = (
+            latest.playback,
+            {
+                True: (True, False, self.activity2),
+                False: (False, False, "No activity - sleep"),
+            },
+        )
 
-        self.activity_zipped = \
-            (val for val in
-             [self.activity1, self.activity2, self.activity3,
-              self.activity4, self.activity5])
+        self.activity_zipped = (
+            val
+            for val in [
+                self.activity1,
+                self.activity2,
+                self.activity3,
+                self.activity4,
+                self.activity5,
+            ]
+        )
         # __________________________________________________________________ ::
 
         # :: Listened Time if Latest ID [does] equal Prior ID -----------------
         if self.is_same_id:
 
-            self.listened1 = \
-                (
-                    self.progress_exceeds_request,
-                    {
-                        True: (
-                            False,
-                            prior.time_listened
-                            + self.unix_request_tmstmp,
-                            None
-                        ),
-                        False: (
-                            False,
-                            prior.time_listened
-                            + self.prior_request_to_latest_start,
-                            None)
-                    }
-                )
+            self.listened1 = (
+                self.progress_exceeds_request,
+                {
+                    True: (False, prior.time_listened + self.unix_request_tmstmp, None),
+                    False: (
+                        False,
+                        prior.time_listened + self.prior_request_to_latest_start,
+                        None,
+                    ),
+                },
+            )
 
-            self.zipped_listened = \
-                (val for val in [self.listened1])
+            self.zipped_listened = (val for val in [self.listened1])
 
         # :: Listened Time if Latest ID does [not] equal Prior ID -------------
         else:
 
-            self.listened2 = \
-                (
-                    self.unix_request_tmstmp < prior.time_remaining,
-                    {
-                        True: (
-                            False,
-                            prior.time_listened
-                            + self.unix_request_tmstmp, None
-                        ),
-                        False: (
-                            False,
-                            prior.time_listened
-                            - (latest.unix_start_tmstmp.
-                               __sub__(prior.unix_request_tmstmp)), None)
-                    }
-                )
+            self.listened2 = (
+                self.unix_request_tmstmp < prior.time_remaining,
+                {
+                    True: (False, prior.time_listened + self.unix_request_tmstmp, None),
+                    False: (
+                        False,
+                        prior.time_listened
+                        - (latest.unix_start_tmstmp.__sub__(prior.unix_request_tmstmp)),
+                        None,
+                    ),
+                },
+            )
 
-            self.listened1 = \
-                (self.cutoff_prior,
-                 {True: (True,
-                         self.listened2, None),
-                  False: (False,
-                          prior.playback.duration, None)})
+            self.listened1 = (
+                self.cutoff_prior,
+                {
+                    True: (True, self.listened2, None),
+                    False: (False, prior.playback.duration, None),
+                },
+            )
 
-            self.zipped_listened = \
-                (val for val in [self.listened1, self.listened2])
+            self.zipped_listened = (val for val in [self.listened1, self.listened2])
         # __________________________________________________________________ ::
         # __________________________________________________________________ ::
 
@@ -531,48 +496,37 @@ class Delta:
 
 
 class Activity(user.UserDBO):
-
     def __init__(self, username: str):
         super().__init__(username)
 
-        self.username: str = \
-            self.user_id
+        self.username: str = self.user_id
 
-        self.current = \
-            Current(user_id=username,
-                    headers=self.headers(),
-                    href=self.current_playback)
+        self.current = Current(
+            user_id=username, headers=self.headers(), href=self.current_playback
+        )
         # TODO: Add a setter to Current class containing
 
-        self.last_added: dict = \
-            {'track': '',
-             'episode': ''}
+        self.last_added: dict = {"track": "", "episode": ""}
 
-        self.play = \
-            self.current.now(self.headers())
+        self.play = self.current.now(self.headers())
 
         if self.play.playback:
             self.cached: list = [self.play]
         else:
             self.cached: list = []
 
-        self.exceptions: list = \
-            []
+        self.exceptions: list = []
 
     def write(self, cache_maximum: int = 10):
 
         # TODO, create a '.batch()' method in the Activity class or make it
         #  a parent/sub-class that's instantiated with a list of instances
         #  on which a 'save()' method can be immediately called
-        if not len(self.cached) >= cache_maximum:
-            pass
-
-        else:
+        if len(self.cached) >= cache_maximum:
 
             remainder = self.cached.pop(-1)
 
-            connect(host=Connector.get_creds(collection='activity'),
-                    alias='activity')
+            connect(host=Connector.get_creds(collection="activity"), alias="activity")
 
             for val in self.cached:
 
@@ -583,7 +537,7 @@ class Activity(user.UserDBO):
                 except:
                     self.exceptions.append(val)
 
-            disconnect('activity')
+            disconnect("activity")
 
             self.cached = [remainder]
 
@@ -591,44 +545,44 @@ class Activity(user.UserDBO):
 
     @property
     def resumed_playback(self):
-        return self.play.playback.id \
-               == self.last_added[self.play.currently_playing_type]
+        return (
+            self.play.playback.id == self.last_added[self.play.currently_playing_type]
+        )
 
     def add_to_all_time_played(self) -> object:
 
-        self.last_added[self.play.currently_playing_type] = \
-            self.play.playback.id
+        self.last_added[self.play.currently_playing_type] = self.play.playback.id
 
         self.play.playback.add_to_playlist(
             playlist_href=self.activity_playlist_hrefs.get(
-                self.play.currently_playing_type),
-            headers=self.headers(post=True)
+                self.play.currently_playing_type
+            ),
+            headers=self.headers(post=True),
         )
 
         return self
 
-    def run(self,
-            active_req_rate: int = 25,
-            dormant_req_rate: int = 300,
-            cache_maximum: int = 10) -> object:
+    def run(
+        self,
+        active_req_rate: int = 25,
+        dormant_req_rate: int = 300,
+        cache_maximum: int = 10,
+    ) -> object:
 
-        self.play = \
-            self.current.now(self.headers())
+        self.play = self.current.now(self.headers())
 
         if self.play.playback:
             self.cached.append(self.play)
 
-        while self.play.status_code not in \
-                [
-                    400,  # Bad / Malformed Request
-                    401,  # Unauthorized
-                    403  # Forbidden
-                ]:
+        while self.play.status_code not in [
+            400,  # Bad / Malformed Request
+            401,  # Unauthorized
+            403,  # Forbidden
+        ]:
 
             # print(f"Tokens expiring in: {self.tokens.expires_in.minutes}")
 
-            self.play = \
-                self.current.now(self.headers())
+            self.play = self.current.now(self.headers())
 
             if self.play.playback and not self.cached:
 
@@ -642,9 +596,11 @@ class Activity(user.UserDBO):
                 # TODO: Figure out why time listened continues to accumulate
                 #  even after pausing has occurred
                 # print(time_listened.seconds)
-                print(f"Outcome:\n\t{desc}\n"
-                      f"New Play:\n\t{is_new}\n"
-                      f"Resumed Playback:\n\t{self.resumed_playback}")
+                print(
+                    f"Outcome:\n\t{desc}\n"
+                    f"New Play:\n\t{is_new}\n"
+                    f"Resumed Playback:\n\t{self.resumed_playback}"
+                )
 
                 if not is_new:
                     # self.play.request_cnt = delta.prior.request_cnt
@@ -654,7 +610,7 @@ class Activity(user.UserDBO):
 
                 # elif not delta.is_same_id:
                 elif self.resumed_playback:
-                    print(f'< no current activity - {dormant_req_rate}s sleep>')
+                    print(f"< no current activity - {dormant_req_rate}s sleep>")
                     time.sleep(dormant_req_rate)
 
                 # elif not self.resumed_playback:
@@ -662,8 +618,9 @@ class Activity(user.UserDBO):
 
                     print(f"< adding to activity playlist >\n")
 
-                    self.last_added[self.play.currently_playing_type] = \
-                        self.play.playback.id
+                    self.last_added[
+                        self.play.currently_playing_type
+                    ] = self.play.playback.id
 
                     self.add_to_all_time_played()
 
@@ -671,11 +628,13 @@ class Activity(user.UserDBO):
                 self.write(cache_maximum=cache_maximum)
                 time.sleep(active_req_rate)
 
-            # else:
-                print(f'< no current activity - {dormant_req_rate}s sleep>')
+                # else:
+                print(f"< no current activity - {dormant_req_rate}s sleep>")
                 time.sleep(dormant_req_rate)
 
         return self
+
+
 # TODO: Add something that always checks the last track added to the podcast
 #  all time played playlist to make sure not repeatedly adding pods -
 #  alternatively could just have it always store that last track and last

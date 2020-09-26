@@ -5,14 +5,11 @@ import jsonpickle
 import time
 from requests_oauth2 import OAuth2
 
-from spotibot.mongo.utils.Handlers import \
-    get_serializable
+from spotibot.mongo.utils.Handlers import get_serializable
 
-from spotibot.core.objects import \
-    Time as spottime
+from spotibot.core.objects import Time as spottime
 
-from spotibot.mongo.core.objects import \
-    User as UserDoc
+from spotibot.mongo.core.objects import User as UserDoc
 
 
 # from spotibot.mongo.conn import \
@@ -20,7 +17,6 @@ from spotibot.mongo.core.objects import \
 
 
 class SpotifyClient(OAuth2):
-
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
 
@@ -76,64 +72,51 @@ class SpotifyClient(OAuth2):
 
 
 class Client:
-
     def __init__(self, cfg: dict):
         self.cfg = cfg
 
-        attrs = cfg.get('CLIENT')
+        attrs = cfg.get("CLIENT")
 
-        self.client_id = \
-            attrs.get('CLIENT_ID')
+        self.client_id = attrs.get("CLIENT_ID")
 
-        self.client_secret = \
-            attrs.get('CLIENT_SECRET')
+        self.client_secret = attrs.get("CLIENT_SECRET")
 
-        self.redirect_uri = \
-            attrs.get('REDIRECT_URI')
+        self.redirect_uri = attrs.get("REDIRECT_URI")
 
 
 class API(Client):
-
     def __init__(self, cfg: dict):
         super().__init__(cfg)
 
-        attrs = self.cfg.get('AUTH')
+        attrs = self.cfg.get("AUTH")
 
-        self.site = \
-            attrs.get('SITE')
+        self.site = attrs.get("SITE")
 
-        self.authorization_url = \
-            attrs.get('AUTHORIZATION_URL')
+        self.authorization_url = attrs.get("AUTHORIZATION_URL")
 
-        self.token_url = \
-            attrs.get('TOKEN_URL')
+        self.token_url = attrs.get("TOKEN_URL")
 
-        self.scope = \
-            attrs.get('SCOPE')
+        self.scope = attrs.get("SCOPE")
 
 
 class Auth(API):
-
     def __init__(self, cfg: dict, username: str):
         super().__init__(cfg)
 
-        self.username = \
-            username
+        self.username = username
 
         self.creds = SpotifyClient(
             site=self.site,
             authorization_url=str(self.authorization_url),
             token_url=self.token_url,
-            scope_sep=' ',
+            scope_sep=" ",
             client_id=self.client_id,
             client_secret=self.client_secret,
-            redirect_uri=self.redirect_uri
+            redirect_uri=self.redirect_uri,
         )
 
         self.authorized_url = self.creds.authorize_url(
-            scope=self.scope,
-            response_type="code",
-            username=username
+            scope=self.scope, response_type="code", username=username
         )
 
     def __eq__(self, other) -> bool:
@@ -191,35 +174,33 @@ class Auth(API):
 
 
 class Token:
-
     def __init__(self, authorized: Auth, url: str):
 
         self.authorized = authorized
 
-        _, self.code = url.split(r'?code=')
+        _, self.code = url.split(r"?code=")
 
-        self.grant_time = \
-            int(time.time())
+        self.grant_time = int(time.time())
 
         self.data = self.authorized.creds.get_token(
             code=self.code,
-            grant_type='authorization_code',
-            redirect_uri=self.authorized.redirect_uri
+            grant_type="authorization_code",
+            redirect_uri=self.authorized.redirect_uri,
         )
 
         self.retries: list = []
 
     @property
     def access_token(self):
-        return self.data.get('access_token')
+        return self.data.get("access_token")
 
     @property
     def refresh_token(self):
-        return self.data.get('refresh_token')
+        return self.data.get("refresh_token")
 
     @property
     def expiration_time(self):
-        return self.grant_time + self.data.get('expires_in')
+        return self.grant_time + self.data.get("expires_in")
 
     @property
     def scope(self):
@@ -234,32 +215,29 @@ class Token:
 
     @property
     def expires_in(self):
-        return spottime.Timestamp((self.expiration_time - 10) - time.time(),
-                                  base='seconds')
+        return spottime.Timestamp(
+            (self.expiration_time - 10) - time.time(), base="seconds"
+        )
 
     def refresh(self):
 
-        self.grant_time = \
-            int(time.time())
+        self.grant_time = int(time.time())
 
-        data_refresh = \
-            self.authorized.creds.refresh_token(
-                grant_type="refresh_token",
-                refresh_token=self.refresh_token,
+        data_refresh = self.authorized.creds.refresh_token(
+            grant_type="refresh_token", refresh_token=self.refresh_token,
+        )
+
+        if not data_refresh.get("access_token"):
+
+            data_refresh = self.authorized.creds.refresh_token(
+                grant_type="refresh_token", refresh_token=self.refresh_token,
             )
-
-        if not data_refresh.get('access_token'):
-
-            data_refresh = \
-                self.authorized.creds.refresh_token(
-                    grant_type="refresh_token",
-                    refresh_token=self.refresh_token,
-                )
 
             self.retries.append(vars(data_refresh))
 
-        assert data_refresh.get('access_token'), \
-            f"Access token not returned after {len(self.retries)} retries"
+        assert data_refresh.get(
+            "access_token"
+        ), f"Access token not returned after {len(self.retries)} retries"
 
         self.data.update(data_refresh)
 
@@ -320,22 +298,16 @@ class Token:
 
 
 class UserDBI:
-
     def __init__(self, token: Token):
         self.token = token
 
-        self.username = \
-            self.token.authorized.username
+        self.username = self.token.authorized.username
 
-        self.pickled = \
-            jsonpickle.encode(self.token)
+        self.pickled = jsonpickle.encode(self.token)
 
-        self.mongo = \
-            UserDoc.User.from_json(
-                json.dumps({'username': self.username,
-                            'obj': self.pickled}
-                           )
-            )
+        self.mongo = UserDoc.User.from_json(
+            json.dumps({"username": self.username, "obj": self.pickled})
+        )
 
     def save(self, **kwargs):
         if UserDoc.User.objects(pk=self.username).first():

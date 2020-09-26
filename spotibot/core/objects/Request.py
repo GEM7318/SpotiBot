@@ -1,17 +1,12 @@
-
 import time
 import requests
 import json
 
-from spotibot.core.objects import \
-    Time as spottime, \
-    User as user
+from spotibot.core.objects import Time as spottime, User as user
 
-from spotibot.core.utils import \
-    Hasher as hasher
+from spotibot.core.utils import Hasher as hasher
 
-from spotibot.mongo.utils.Handlers import \
-    get_serializable
+from spotibot.mongo.utils.Handlers import get_serializable
 
 # TODO: Need to have something here that indicates downstream actions to not
 #  even attempt to execute if it returns nothing/playback has gone dormant

@@ -1,4 +1,3 @@
-
 import json
 from spotibot.mongo.utils.Handlers import object_handler, get_serializable
 
@@ -25,11 +24,9 @@ class ExternalId:
 
     def __init__(self, external_id: dict):
 
-        self.typ: str = \
-            list(external_id.keys())[0]
+        self.typ: str = list(external_id.keys())[0]
 
-        self.id: str = \
-            object_handler(external_id, self.typ)
+        self.id: str = object_handler(external_id, self.typ)
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
@@ -105,11 +102,9 @@ class ExternalUrl:
 
     def __init__(self, url):
 
-        self.typ: str = \
-            object_handler(url, 'typ')
+        self.typ: str = object_handler(url, "typ")
 
-        self.url: str = \
-            object_handler(url, 'url')
+        self.url: str = object_handler(url, "url")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
@@ -187,14 +182,11 @@ class Image:
 
     def __init__(self, image):
         if image:
-            self.height: int = \
-                object_handler(image, 'height')
+            self.height: int = object_handler(image, "height")
 
-            self.url: str = \
-                object_handler(image, 'url')
+            self.url: str = object_handler(image, "url")
 
-            self.width: int = \
-                object_handler(image, 'width')
+            self.width: int = object_handler(image, "width")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.

@@ -1,18 +1,11 @@
-
 import json
 import requests
 
-from spotibot.core.objects import \
-    Time
+from spotibot.core.objects import Time
 
-from spotibot.core.objects.General import \
-    Image, \
-    ExternalUrl, \
-    ExternalId
+from spotibot.core.objects.General import Image, ExternalUrl, ExternalId
 
-from spotibot.mongo.utils.Handlers import \
-    object_handler, \
-    get_serializable
+from spotibot.mongo.utils.Handlers import object_handler, get_serializable
 
 
 class Album:
@@ -69,44 +62,37 @@ class Album:
 
     def __init__(self, album):
 
-        self.album_type: str = \
-            object_handler(album, 'album_type')
+        self.album_type: str = object_handler(album, "album_type")
 
-        self.artists: list = \
-            [Artist(artist) for artist in object_handler(album, 'artists')]
+        self.artists: list = [
+            Artist(artist) for artist in object_handler(album, "artists")
+        ]
 
-        self.available_markets: list = \
-            object_handler(album, 'available_markets')
+        self.available_markets: list = object_handler(album, "available_markets")
 
-        self.external_urls: ExternalUrl = \
-            ExternalUrl(object_handler(album, 'external_urls'))
+        self.external_urls: ExternalUrl = ExternalUrl(
+            object_handler(album, "external_urls")
+        )
 
-        self.href: str = \
-            object_handler(album, 'href')
+        self.href: str = object_handler(album, "href")
 
-        self.id: str = \
-            object_handler(album, 'id')
+        self.id: str = object_handler(album, "id")
 
-        self.images: list = \
-            [Image(image) for image in object_handler(album, 'images')]
+        self.images: list = [Image(image) for image in object_handler(album, "images")]
 
-        self.name: str = \
-            object_handler(album, 'name')
+        self.name: str = object_handler(album, "name")
 
-        self.release_date: str = \
-            object_handler(album, 'release_date')
+        self.release_date: str = object_handler(album, "release_date")
 
-        self.release_date_precision: str = \
-            object_handler(album, 'release_date_precision')
+        self.release_date_precision: str = object_handler(
+            album, "release_date_precision"
+        )
 
-        self.restrictions: dict = \
-            object_handler(album, 'restrictions')
+        self.restrictions: dict = object_handler(album, "restrictions")
 
-        self.type: str = \
-            object_handler(album, 'type')
+        self.type: str = object_handler(album, "type")
 
-        self.uri: str = \
-            object_handler(album, 'uri')
+        self.uri: str = object_handler(album, "uri")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
@@ -186,20 +172,15 @@ class Artist:
     """
 
     def __init__(self, artist):
-        self.href: str = \
-            object_handler(artist, 'href')
+        self.href: str = object_handler(artist, "href")
 
-        self.id: str = \
-            object_handler(artist, 'id')
+        self.id: str = object_handler(artist, "id")
 
-        self.name: str = \
-            object_handler(artist, 'name')
+        self.name: str = object_handler(artist, "name")
 
-        self.type: str = \
-            object_handler(artist, 'type')
+        self.type: str = object_handler(artist, "type")
 
-        self.uri: str = \
-            object_handler(artist, 'uri')
+        self.uri: str = object_handler(artist, "uri")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
@@ -331,56 +312,47 @@ class Track:
 
     def __init__(self, track: dict):
 
-        self.album: Album = \
-            Album(object_handler(track, 'album'))
+        self.album: Album = Album(object_handler(track, "album"))
 
-        self.artists: list = \
-            [Artist(artist) for artist in object_handler(track, 'artists')]
+        self.artists: list = [
+            Artist(artist) for artist in object_handler(track, "artists")
+        ]
 
-        self.available_markets: list = \
-            object_handler(track, 'available_markets')
+        self.available_markets: list = object_handler(track, "available_markets")
 
-        self.disc_number: int = \
-            object_handler(track, 'disc_number')
+        self.disc_number: int = object_handler(track, "disc_number")
 
-        self.duration: Time.Timestamp = \
-            Time.Timestamp(track.get('duration_ms'), base='milliseconds')
+        self.duration: Time.Timestamp = Time.Timestamp(
+            track.get("duration_ms"), base="milliseconds"
+        )
 
-        self.explicit: bool = \
-            object_handler(track, 'explicit')
+        self.explicit: bool = object_handler(track, "explicit")
 
-        self.external_ids: ExternalId = \
-            ExternalId(object_handler(track, 'external_ids'))
+        self.external_ids: ExternalId = ExternalId(
+            object_handler(track, "external_ids")
+        )
 
-        self.external_urls: ExternalUrl = \
-            ExternalUrl(object_handler(track, 'external_urls'))
+        self.external_urls: ExternalUrl = ExternalUrl(
+            object_handler(track, "external_urls")
+        )
 
-        self.href: str = \
-            object_handler(track, 'href')
+        self.href: str = object_handler(track, "href")
 
-        self.id: str = \
-            object_handler(track, 'id')
+        self.id: str = object_handler(track, "id")
 
-        self.is_local: bool = \
-            object_handler(track, 'is_local')
+        self.is_local: bool = object_handler(track, "is_local")
 
-        self.name: str = \
-            object_handler(track, 'name')
+        self.name: str = object_handler(track, "name")
 
-        self.popularity: int = \
-            object_handler(track, 'popularity')
+        self.popularity: int = object_handler(track, "popularity")
 
-        self.preview_url: str = \
-            object_handler(track, 'preview_url')
+        self.preview_url: str = object_handler(track, "preview_url")
 
-        self.track_number: int = \
-            object_handler(track, 'track_number')
+        self.track_number: int = object_handler(track, "track_number")
 
-        self.type: str = \
-            object_handler(track, 'type')
+        self.type: str = object_handler(track, "type")
 
-        self.uri: str = \
-            object_handler(track, 'uri')
+        self.uri: str = object_handler(track, "uri")
 
     def get_duration(self) -> Time.Timestamp:
         return self.duration
@@ -440,6 +412,6 @@ class Track:
 
     def add_to_playlist(self, playlist_href: str, headers: dict):
 
-        return requests.post(playlist_href,
-                             data=json.dumps({'uris': [self.uri]}),
-                             headers=headers)
+        return requests.post(
+            playlist_href, data=json.dumps({"uris": [self.uri]}), headers=headers
+        )

@@ -30,29 +30,22 @@ class Device:
     """
 
     def __init__(self, device: dict):
-        self.id: str = \
-            object_handler(device, 'id')
+        self.id: str = object_handler(device, "id")
 
         # self.id.accepted_values = \
         #     [None, 'Computer', 'Speaker', 'Smartphone']
 
-        self.is_active: bool = \
-            object_handler(device, 'is_active')
+        self.is_active: bool = object_handler(device, "is_active")
 
-        self.is_private_session: bool = \
-            object_handler(device, 'is_private_session')
+        self.is_private_session: bool = object_handler(device, "is_private_session")
 
-        self.is_restricted: bool = \
-            object_handler(device, 'is_restricted')
+        self.is_restricted: bool = object_handler(device, "is_restricted")
 
-        self.name: str = \
-            object_handler(device, 'name')
+        self.name: str = object_handler(device, "name")
 
-        self.type: str = \
-            object_handler(device, 'type')
+        self.type: str = object_handler(device, "type")
 
-        self.volume_percent: int = \
-            object_handler(device, 'volume_percent')
+        self.volume_percent: int = object_handler(device, "volume_percent")
 
     # def validate(self):
     #     validation_dict = {}
@@ -116,5 +109,3 @@ class Device:
             Serializable 'json' output of SpotiBot object
         """
         return json.dumps(self.to_dict())
-
-

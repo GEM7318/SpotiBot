@@ -1,50 +1,41 @@
-
 import json
 from spotibot.mongo.utils.Handlers import object_handler, get_serializable
 
 
 class Timestamp:
-
-    def __init__(self, raw, base='seconds'):
+    def __init__(self, raw, base="seconds"):
 
         self.raw = raw
         self.base = base
 
-        if base == 'seconds':
+        if base == "seconds":
             self.adj_ms = 1_000
             self.adj_ns = 1_000_000_000
-            self.adj_sec = (1 / 1)
+            self.adj_sec = 1 / 1
 
-        elif base == 'milliseconds':
-            self.adj_ms = (1 / 1)
+        elif base == "milliseconds":
+            self.adj_ms = 1 / 1
             self.adj_ns = 1_000_000
-            self.adj_sec = (1 / 1_000)
+            self.adj_sec = 1 / 1_000
 
-        elif base == 'nanoseconds':
-            self.adj_ms = (1 / 1_000_000)
-            self.adj_ns = (1 / 1)
-            self.adj_sec = (1 / 1_000_000_000)
+        elif base == "nanoseconds":
+            self.adj_ms = 1 / 1_000_000
+            self.adj_ns = 1 / 1
+            self.adj_sec = 1 / 1_000_000_000
 
-        self.seconds: int = \
-            int(self.adj_sec * self.raw)
+        self.seconds: int = int(self.adj_sec * self.raw)
 
-        self.milliseconds: int = \
-            int(self.adj_ms * self.raw)
+        self.milliseconds: int = int(self.adj_ms * self.raw)
 
-        self.nanoseconds: int = \
-            int(self.adj_ns * self.raw)
+        self.nanoseconds: int = int(self.adj_ns * self.raw)
 
-        self.minutes: int = \
-            int(self.seconds / 60)
+        self.minutes: int = int(self.seconds / 60)
 
-        self.is_positive: bool = \
-            self.raw > 0
+        self.is_positive: bool = self.raw > 0
 
-        self.is_negative: bool = \
-            self.raw < 0
+        self.is_negative: bool = self.raw < 0
 
-        self.is_zero: bool = \
-            self.raw == 0
+        self.is_zero: bool = self.raw == 0
 
     def __int__(self):
         return int(self.raw)
@@ -52,12 +43,12 @@ class Timestamp:
     def __add__(self, other):
         other_secs = other.seconds
         total_secs = self.seconds + other_secs
-        return Timestamp(total_secs, base='seconds')
+        return Timestamp(total_secs, base="seconds")
 
     def __sub__(self, other):
         other_secs = other.seconds
         total_secs = self.seconds - other_secs
-        return Timestamp(total_secs, base='seconds')
+        return Timestamp(total_secs, base="seconds")
 
     def __lt__(self, other) -> bool:
         return self.seconds < other.seconds

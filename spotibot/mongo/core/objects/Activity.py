@@ -1,29 +1,23 @@
-
 from mongoengine import *
 
-from spotibot.mongo.conn import \
-    Connector
+from spotibot.mongo.conn import Connector
 
-from spotibot.mongo.objects import \
-    General as genmongo
+from spotibot.mongo.objects import General as genmongo
 
 
 class Activity:
-
     def __init__(self, spot_obj):
 
-        playback = \
-            spot_obj.pop('playback')
+        playback = spot_obj.pop("playback")
 
-        self.current = \
-            genmongo.Current().from_json(spot_obj.json)
+        self.current = genmongo.Current().from_json(spot_obj.json)
 
-        current_typ = spot_obj.get('currently_playing_type')
+        current_typ = spot_obj.get("currently_playing_type")
 
-        if current_typ == 'track':
+        if current_typ == "track":
             self.current.playback = genmongo.Track.from_json(playback.json)
 
-        elif current_typ == 'episode':
+        elif current_typ == "episode":
             self.current.playback = genmongo.Episode.from_json(playback.json)
 
         else:

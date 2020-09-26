@@ -1,4 +1,3 @@
-
 import json
 from spotibot.mongo.utils.Handlers import object_handler, get_serializable
 
@@ -27,20 +26,16 @@ class Context:
     def __init__(self, context: dict):
 
         if context:
-            self.href: str = \
-                object_handler(context, 'href')
+            self.href: str = object_handler(context, "href")
 
         if context:
-            self.type: str = \
-                object_handler(context, 'type')
+            self.type: str = object_handler(context, "type")
 
         if context:
-            self.uri: str = \
-                object_handler(context, 'uri')
+            self.uri: str = object_handler(context, "uri")
 
         if context:
-            self.external_urls: str = \
-                object_handler(context, 'external_urls')
+            self.external_urls: str = object_handler(context, "external_urls")
 
     def __eq__(self, other) -> bool:
         """Equality comparison to other objects.
